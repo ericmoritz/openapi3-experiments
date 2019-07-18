@@ -1,0 +1,241 @@
+openapi: "3.0.0"
+info:
+  title: "Example service"
+  description: |
+    This is the definition for the backend to the frontend
+  version: "1"
+servers:
+  - url: '/api/v1'
+paths:
+  /people:
+    get:
+      summary: "List all people"
+      operationId: "listPeople"
+      tags:
+        - people
+      responses:
+        200:
+          description: "The listing of people"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListPeopleSuccess"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    post:
+      summary: "Create a new person"
+      operationId: "createPerson"
+      tags:
+        - people
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePerson"
+      responses:
+        200:
+          description: "Create a new person"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /people/{personId}:
+    get:
+      summary: "Get a person"
+      operationId: "getPerson"
+      tags:
+        - people
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Person was updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPersonSuccess"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    patch:
+      summary: "Update a person"
+      operationId: "updatePerson"
+      tags:
+        - people
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Person was updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      summary: "Delete a person"
+      operationId: "deletePerson"
+      tags:
+        - people
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Person was deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+components:
+  schemas:
+    Success:
+      type: object
+      required:
+        - kind
+      properties:
+        kind:
+          type: string 
+          enum: [Success]
+    InternalServerError:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [InternalServerError]
+        message:
+          type: string
+    BadRequest:
+      type: object
+      required:
+        - kind
+        - message
+      properties:
+        kind:
+          type: string
+          enum: [BadRequest]
+        errors:
+          type: array
+          items:
+            description: "See https://www.npmjs.com/package/ajv#validation-errors"
+            type: object
+            properties:
+              dataPath: 
+                type: string
+              schemaPath:
+                type: string
+              message:
+                type: string
+    NotFound:
+      type: object
+      required:
+        - kind
+      properties:
+        kind:
+          type: string
+          enum: [NotFound]
+    Person:
+      type: object
+      required:
+        - kind
+        - id
+        - name
+      properties:
+        kind:
+          type: string
+          enum: [Person]
+        id:
+          type: string
+        name:
+          type: string
+    CreatePerson:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    ListPeopleSuccess:
+      type: object
+      required:
+        - kind
+        - people
+      properties:
+        kind:
+          type: string
+          enum: [ListPeopleSuccess]
+        people:
+          type: array
+          items:
+            $ref: "#/components/schemas/Person"
+    GetPersonSuccess:
+      type: object
+      required:
+        - kind
+        - person
+      properties:
+        kind:
+          type: string
+          enum: [GetPersonSuccess]
+        person:
+          $ref: "#/components/schemas/Person"
