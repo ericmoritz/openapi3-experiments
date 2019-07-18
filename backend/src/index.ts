@@ -10,14 +10,12 @@ const openAPIYAML = __dirname + "/openapi.yaml";
 const port = 8080; // default port to listen
 
 const data: { [key: string]: types.Person } = {
-  "1": { kind: "Person", id: "1", name: "Eric" }
+  "1": { kind: "Person", id: "1", name: "Eric" },
 };
 
 interface Service {
   listPeople(): Promise<people.listPeopleResponse>;
-  createPerson(
-    req: people.createPersonRequest
-  ): Promise<people.createPersonResponse>;
+  createPerson(req: people.createPersonRequest): Promise<people.createPersonResponse>;
   getPerson(id: string): Promise<people.getPersonResponse | types.NotFound>;
 }
 
@@ -25,38 +23,33 @@ const service: Service = {
   async listPeople(): Promise<people.listPeopleResponse> {
     return {
       kind: "ListPeopleSuccess",
-      people: Object.values(data)
+      people: Object.values(data),
     };
   },
 
-  async createPerson(
-    req: people.createPersonRequest
-  ): Promise<people.createPersonResponse> {
+  async createPerson(req: people.createPersonRequest): Promise<people.createPersonResponse> {
     const person: types.Person = {
       kind: "Person",
       id: uuidv4(),
-      name: req.name
+      name: req.name,
     };
     data[person.id] = person;
     return { kind: "Success" };
   },
 
-  async getPerson(
-    id: string
-  ): Promise<people.getPersonResponse | types.NotFound> {
+  async getPerson(id: string): Promise<people.getPersonResponse | types.NotFound> {
     const person = data[id];
     if (!person) {
       const resp: types.NotFound = { kind: "NotFound" };
       return resp;
     }
     return { kind: "GetPersonSuccess", person };
-  }
+  },
 };
 const api = new OpenAPIBackend({
   definition: openAPIJSON,
   handlers: {
-    validationFail: (c, _req, res) =>
-      res.status(400).json({ err: c.validation.errors }),
+    validationFail: (c, _req, res) => res.status(400).json({ err: c.validation.errors }),
     notFound: (_c, _req, res) => res.status(404).json({ err: "not found" }),
     listPeople: async (_c, _req, res) => {
       res.status(200).json(await service.listPeople());
@@ -64,10 +57,8 @@ const api = new OpenAPIBackend({
     createPerson: async (c, _req, res) =>
       res.status(200).json(await service.createPerson(c.request.requestBody)),
     getPerson: async (c, _req, res) =>
-      res
-        .status(200)
-        .json(await service.getPerson(c.request.params.personId as string))
-  }
+      res.status(200).json(await service.getPerson(c.request.params.personId as string)),
+  },
 });
 api.init();
 
